@@ -57,17 +57,7 @@ Go to the original repository on GitHub and create a pull request. Provide a cle
 
 ## Code of Conduct
 
-We are committed to fostering a welcoming and inclusive community. To ensure a positive environment for everyone, please adhere to the following guidelines:
-
-- **Be Respectful:** Treat everyone with respect. Harassment, discrimination, or offensive behavior will not be tolerated.
-- **Be Constructive:** Provide constructive feedback. Offer suggestions for improvement rather than simply criticizing.
-- **Be Collaborative:** Work together and help others when you can. Share knowledge and be open to learning from others.
-- **Be Patient:** Understand that everyone has different levels of experience and knowledge. Be patient and willing to explain concepts when necessary.
-- **Be Open:** Embrace diversity and be inclusive of all individuals, regardless of background or identity.
-- **Respect Privacy:** Do not share private information about other contributors without their consent.
-- **Report Issues:** If you witness or experience any violations of this Code of Conduct, please report it to the project maintainers immediately.
-
-By participating in this project, you agree to adhere to this Code of Conduct. Thank you for helping us create a positive and inclusive community!
+We are committed to fostering a welcoming and inclusive community. To ensure a positive environment for everyone, please follow the [Contributor Covenant Code of Conduct](https://github.com/kubefirst/kubefirst/blob/main/CODE_OF_CONDUCT.md) for Kubefirst and Konstruct.io.
 
 ## Keeping the Spirit of Copyleft
 
