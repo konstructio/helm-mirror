@@ -104,3 +104,4 @@ brews:
     repository:
       owner: konstructio
       name: homebrew-taps
+      token: "{{ .Env.GH_TOKEN }}"
