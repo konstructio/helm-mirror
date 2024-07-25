@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"path"
+	"strings"
 
 	"k8s.io/helm/cmd/helm/search"
 	"k8s.io/helm/pkg/getter"
@@ -16,6 +18,7 @@ import (
 const (
 	downloadedFileName = "downloaded-index.yaml"
 	indexFileName      = "index.yaml"
+	dirSeparator       = "/"
 )
 
 // GetServiceInterface defines a Get service
@@ -83,6 +86,15 @@ func (g *GetService) Get() error {
 			continue
 		}
 		for _, u := range result.Chart.URLs {
+			chartURL, err := url.Parse(u)
+			if err != nil {
+				return fmt.Errorf("invalid chart URL %q: %w", u, err)
+			}
+
+			if chartURL.Scheme == "" {
+				u = strings.TrimRight(g.config.URL, dirSeparator) + dirSeparator + u
+			}
+
 			buf, err := chartRepo.Client.Get(u)
 			if err != nil {
 				if g.ignoreErrors {
