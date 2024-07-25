@@ -2,19 +2,20 @@ package formatter
 
 import (
 	"bytes"
-	"io/ioutil"
+	"fmt"
 	"log"
+	"os"
 )
 
-//Formatter defines the behavior for a Formatter
+// Formatter defines the behavior for a Formatter
 type Formatter interface {
 	Output(buffer bytes.Buffer) error
 }
 
-//Type definition of formatter type enum
+// Type definition of formatter type enum
 type Type int
 
-//Enum for Formatter
+// Enum for Formatter
 const (
 	StdoutType Type = 1 << iota
 	FileType
@@ -23,7 +24,9 @@ const (
 	SkopeoType
 )
 
-//NewFormatter returns a new instance of formatter
+// NewFormatter returns a new instance of formatter
+//
+//nolint:ireturn
 func NewFormatter(t Type, fileName string, logger *log.Logger) Formatter {
 	switch t {
 	case StdoutType:
@@ -42,15 +45,15 @@ func NewFormatter(t Type, fileName string, logger *log.Logger) Formatter {
 }
 
 func writeFile(name string, content []byte, log *log.Logger) error {
-	err := ioutil.WriteFile(name, content, 0666)
+	err := os.WriteFile(name, content, 0o600)
 	if err != nil {
 		log.Printf("cannot write files %s: %s", name, err)
-		return err
+		return fmt.Errorf("cannot write files %s: %w", name, err)
 	}
 	return nil
 }
 
-//Images struct for YAML and JSON output
+// Images struct for YAML and JSON output
 type Images struct {
-	Names []string `json,yaml:"names,omitempty"`
+	Names []string `json:"names,omitempty" yaml:"names,omitempty"`
 }

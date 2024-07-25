@@ -10,7 +10,7 @@ type file struct {
 	l        *log.Logger
 }
 
-func newFileFormatter(fileName string, logger *log.Logger) Formatter {
+func newFileFormatter(fileName string, logger *log.Logger) *file {
 	return &file{
 		fileName: fileName,
 		l:        logger,

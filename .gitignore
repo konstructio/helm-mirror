@@ -9,3 +9,4 @@ images
 cover.out
 coverage.txt
 sync.yaml
+dist/

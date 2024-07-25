@@ -1,14 +1,14 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"testing"
 
-	"github.com/openSUSE/helm-mirror/fixtures"
+	"github.com/patrickdappollonio/helm-mirror/fixtures"
 	"github.com/spf13/cobra"
 )
 
@@ -48,13 +48,13 @@ func Test_validateRootArgs(t *testing.T) {
 }
 
 func Test_runRoot(t *testing.T) {
-	dir, err := ioutil.TempDir("", "helmmirror")
+	dir, err := os.MkdirTemp("", "helmmirror")
 	if err != nil {
 		t.Errorf("creating temp dir: %s", err)
 	}
 	defer os.RemoveAll(dir)
 	svr := fixtures.StartHTTPServer()
-	defer svr.Shutdown(nil)
+	defer svr.Shutdown(context.Background())
 	fixtures.WaitForServer("http://127.0.0.1:1793/alive")
 	type args struct {
 		cmd          *cobra.Command

@@ -1,0 +1,100 @@
+version: 2
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    tags:
+      - netgo
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{.Version}} -extldflags "-static"
+    binary: bin/mirror
+archives:
+  - name_template: >-
+      {{ .ProjectName }}_
+      {{- tolower .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+    files:
+      - README.md
+      - LICENSE
+      - scripts/install-binary.sh
+      - plugin.yaml
+checksum:
+  name_template: "checksums.txt"
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+dockers:
+  - image_templates:
+      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-amd64"
+    goos: linux
+    goarch: amd64
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.description={{ .ProjectName }} version {{ .Version }}. See release notes at https://github.com/patrickdappollonio/{{ .ProjectName }}/releases/tag/v{{ .RawVersion }}"
+      - "--label=org.opencontainers.image.url=https://github.com/patrickdappollonio/{{ .ProjectName }}"
+      - "--label=org.opencontainers.image.source=https://github.com/patrickdappollonio/{{ .ProjectName }}"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+    extra_files:
+      - README.md
+      - LICENSE
+      - scripts/install-binary.sh
+      - plugin.yaml
+  - image_templates:
+      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-arm64"
+    goos: linux
+    goarch: arm64
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.description={{ .ProjectName }} version {{ .Version }}. See release notes at https://github.com/patrickdappollonio/{{ .ProjectName }}/releases/tag/v{{ .RawVersion }}"
+      - "--label=org.opencontainers.image.url=https://github.com/patrickdappollonio/{{ .ProjectName }}"
+      - "--label=org.opencontainers.image.source=https://github.com/patrickdappollonio/{{ .ProjectName }}"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+    extra_files:
+      - README.md
+      - LICENSE
+      - scripts/install-binary.sh
+      - plugin.yaml
+docker_manifests:
+  - name_template: "ghcr.io/patrickdappollonio/{{ .ProjectName }}:v{{ .RawVersion }}"
+    image_templates:
+      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "ghcr.io/patrickdappollonio/{{ .ProjectName }}:v{{ .Major }}"
+    image_templates:
+      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "ghcr.io/patrickdappollonio/{{ .ProjectName }}:latest"
+    image_templates:
+      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-arm64"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+  groups:
+    - title: "Fixes, improvements and updates"
+      order: 1
+    - title: "Dependency updates"
+      regexp: "^Bump .* from .* to .*$" # dependabot
+      order: 999

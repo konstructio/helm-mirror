@@ -2,14 +2,13 @@ package service
 
 import (
 	"bytes"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
 	"reflect"
 	"testing"
 
-	"github.com/openSUSE/helm-mirror/formatter"
+	"github.com/patrickdappollonio/helm-mirror/formatter"
 )
 
 var (
@@ -195,7 +194,7 @@ func Test_sanitizeImageString(t *testing.T) {
 }
 
 func prepareTmp() (string, error) {
-	dir, err := ioutil.TempDir("", "helmmirror")
+	dir, err := os.MkdirTemp("", "helmmirror")
 	if err != nil {
 		return "", err
 	}
@@ -204,10 +203,10 @@ func prepareTmp() (string, error) {
 	processTgzPath := path.Join(dir, "processtgz")
 	errorPath := path.Join(dir, "processfoldererror")
 	getPath := path.Join(dir, "get")
-	os.MkdirAll(processPath, 0777)
-	os.MkdirAll(processTgzPath, 0777)
-	os.MkdirAll(errorPath, 0777)
-	os.MkdirAll(getPath, 0777)
+	os.MkdirAll(processPath, 0o777)
+	os.MkdirAll(processTgzPath, 0o777)
+	os.MkdirAll(errorPath, 0o777)
+	os.MkdirAll(getPath, 0o777)
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -217,17 +216,20 @@ func prepareTmp() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	tarCmd := exec.Command("tar", "zcvf", path.Join(processTgzPath, "chart1.tgz"), "--directory="+testdataPath, "chart1")
+
+	dirFlag := "--directory=" + testdataPath
+
+	tarCmd := exec.Command("tar", "zcvf", path.Join(processTgzPath, "chart1.tgz"), dirFlag, "chart1")
 	tarCmd.Run()
-	tarCmd = exec.Command("tar", "zcvf", path.Join(processTgzPath, "chart2.tgz"), "--directory="+testdataPath, "chart2")
+	tarCmd = exec.Command("tar", "zcvf", path.Join(processTgzPath, "chart2.tgz"), dirFlag, "chart2")
 	tarCmd.Run()
-	tarCmd = exec.Command("tar", "zcvf", path.Join(processTgzPath, "chart3.tgz"), "--directory="+testdataPath, "chart3")
+	tarCmd = exec.Command("tar", "zcvf", path.Join(processTgzPath, "chart3.tgz"), dirFlag, "chart3")
 	tarCmd.Run()
-	tarCmd = exec.Command("tar", "zcvf", path.Join(processTgzPath, "chart4.tgz"), "--directory="+testdataPath, "chart4")
+	tarCmd = exec.Command("tar", "zcvf", path.Join(processTgzPath, "chart4.tgz"), dirFlag, "chart4")
 	tarCmd.Run()
-	tarCmd = exec.Command("tar", "zcvf", path.Join(processTgzPath, "chart5.tgz"), "--directory="+testdataPath, "chart5")
+	tarCmd = exec.Command("tar", "zcvf", path.Join(processTgzPath, "chart5.tgz"), dirFlag, "chart5")
 	tarCmd.Run()
-	tarCmd = exec.Command("tar", "zcvf", path.Join(errorPath, "chart6.tgz"), "--directory="+testdataPath, "chart6")
+	tarCmd = exec.Command("tar", "zcvf", path.Join(errorPath, "chart6.tgz"), dirFlag, "chart6")
 	tarCmd.Run()
 
 	err = os.Symlink(path.Join(processTgzPath, "chart1.tgz"), path.Join(processPath, "chart1.tgz"))

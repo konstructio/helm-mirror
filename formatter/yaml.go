@@ -2,6 +2,7 @@ package formatter
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"strings"
 
@@ -13,7 +14,7 @@ type yaml struct {
 	l        *log.Logger
 }
 
-func newYamlFormatter(fileName string, logger *log.Logger) Formatter {
+func newYamlFormatter(fileName string, logger *log.Logger) *yaml {
 	return &yaml{
 		fileName: fileName,
 		l:        logger,
@@ -22,20 +23,20 @@ func newYamlFormatter(fileName string, logger *log.Logger) Formatter {
 
 func (f *yaml) Output(b bytes.Buffer) error {
 	imgs := strings.Split(b.String(), "\n")
-	var im Images
+	var images Images
 	for _, i := range imgs {
 		if i != "" {
-			im.Names = append(im.Names, i)
+			images.Names = append(images.Names, i)
 		}
 	}
-	y, err := yamlencoder.Marshal(im)
+	encoded, err := yamlencoder.Marshal(images)
 	if err != nil {
 		f.l.Printf("error: cannot encode yaml")
-		return err
+		return fmt.Errorf("cannot encode yaml: %w", err)
 	}
-	err = writeFile(f.fileName, y, f.l)
-	if err != nil {
-		return err
+
+	if err := writeFile(f.fileName, encoded, f.l); err != nil {
+		return fmt.Errorf("cannot write to file %q: %w", f.fileName, err)
 	}
 	return nil
 }

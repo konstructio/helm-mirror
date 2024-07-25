@@ -3,14 +3,14 @@ package service
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
-	"reflect"
 	"strings"
 
-	"github.com/openSUSE/helm-mirror/formatter"
+	"github.com/patrickdappollonio/helm-mirror/formatter"
 	"github.com/pkg/errors"
 	"k8s.io/helm/pkg/chartutil"
 	"k8s.io/helm/pkg/engine"
@@ -36,7 +36,7 @@ type ImagesService struct {
 }
 
 // NewImagesService return a new instace of ImagesService
-func NewImagesService(target string, verbose bool, ignoreErrors bool, formatter formatter.Formatter, logger *log.Logger) ImagesServiceInterface {
+func NewImagesService(target string, verbose bool, ignoreErrors bool, formatter formatter.Formatter, logger *log.Logger) *ImagesService {
 	return &ImagesService{
 		target:       target,
 		formatter:    formatter,
@@ -46,12 +46,13 @@ func NewImagesService(target string, verbose bool, ignoreErrors bool, formatter 
 	}
 }
 
-//Images extracts al the images in the Helm Charts downloaded by the get command
+// Images extracts al the images in the Helm Charts downloaded by the get command
 func (i *ImagesService) Images() error {
+	//nolint:varnamelen
 	fi, err := os.Stat(i.target)
 	if err != nil {
 		i.logger.Printf("error: cannot read target: %s", i.target)
-		return err
+		return fmt.Errorf("cannot stat target %q: %w", i.target, err)
 	}
 
 	if fi.IsDir() {
@@ -61,28 +62,32 @@ func (i *ImagesService) Images() error {
 	}
 	if err != nil {
 		i.logger.Printf("error: procesing target %s: %s", i.target, err)
-		return err
+		return fmt.Errorf("cannot process target %q: %w", i.target, err)
 	}
-	err = i.formatter.Output(i.buffer)
-	if err != nil {
+
+	if err := i.formatter.Output(i.buffer); err != nil {
 		i.logger.Printf("writing output: %s", err)
-		return err
+		return fmt.Errorf("cannot write output: %w", err)
 	}
 	return nil
 }
 
 func (i *ImagesService) processDirectory(target string) error {
 	hasTgzCharts := false
+
+	//nolint:varnamelen
 	fi, err := os.Stat(i.target)
 	if err != nil {
 		i.logger.Printf("error: cannot read target: %s", i.target)
-		return err
+		return fmt.Errorf("cannot stat target %q: %w", i.target, err)
 	}
+
 	if !fi.IsDir() {
 		return errors.New("error: inspectImages: processDirectory: target not a directory")
 	}
-	e := i.processTarget(target)
-	if e != nil {
+
+	perr := i.processTarget(target)
+	if perr != nil {
 		err := filepath.Walk(target, func(dir string, info os.FileInfo, err error) error {
 			if err != nil {
 				i.logger.Printf("error: cannot access a dir %q: %v\n", dir, err)
@@ -102,12 +107,13 @@ func (i *ImagesService) processDirectory(target string) error {
 		})
 		if err != nil {
 			i.logger.Printf("error walking the path %q: %v\n", target, err)
-			return err
+			return fmt.Errorf("cannot walk path %q: %w", target, err)
 		}
 	}
-	if e != nil && !hasTgzCharts {
-		i.logger.Printf("error: cannot load chart: %s", e)
-		return e
+
+	if perr != nil && !hasTgzCharts {
+		i.logger.Printf("error: cannot load chart: %s", perr)
+		return perr
 	}
 	return nil
 }
@@ -117,9 +123,9 @@ func (i *ImagesService) processTarget(target string) error {
 		i.logger.Printf("processig target: %s", target)
 	}
 
-	c, err := chartutil.Load(target)
+	loadedChart, err := chartutil.Load(target)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot load chart %q: %w", target, err)
 	}
 	caps := &chartutil.Capabilities{
 		APIVersions:   chartutil.DefaultVersionSet,
@@ -127,20 +133,21 @@ func (i *ImagesService) processTarget(target string) error {
 		TillerVersion: tversion.GetVersionProto(),
 	}
 	chartConfig := &chart.Config{}
-	vals, err := chartutil.ToRenderValuesCaps(c, chartConfig, renderutil.Options{}.ReleaseOptions, caps)
+	vals, err := chartutil.ToRenderValuesCaps(loadedChart, chartConfig, renderutil.Options{}.ReleaseOptions, caps)
 	if err != nil {
 		i.logger.Printf("error: cannot render values: %s", err)
-		return err
+		return fmt.Errorf("cannot render chart %q values: %w", target, err)
 	}
 
 	vals = cleanUp(vals)
 	renderer := engine.New()
 	renderer.LintMode = i.ignoreErrors
-	rendered, err := renderer.Render(c, vals)
+	rendered, err := renderer.Render(loadedChart, vals)
 	if err != nil {
 		i.logger.Printf("error: cannot render chart: %s", err)
-		return err
+		return fmt.Errorf("cannot render chart %q: %w", target, err)
 	}
+
 	for _, t := range rendered {
 		scanner := bufio.NewScanner(strings.NewReader(t))
 		for scanner.Scan() {
@@ -153,27 +160,30 @@ func (i *ImagesService) processTarget(target string) error {
 	return nil
 }
 
-func sanitizeImageString(s string) string {
-	s = strings.Replace(s, "\"", "", 2)
-	s = strings.TrimSpace(s)
-	s = strings.TrimPrefix(s, "-")
-	s = strings.TrimSpace(s)
-	s = strings.TrimPrefix(s, "image: ")
-	s = strings.TrimSpace(s)
-	return s
+func sanitizeImageString(str string) string {
+	str = strings.Replace(str, "\"", "", 2)
+	str = strings.TrimSpace(str)
+	str = strings.TrimPrefix(str, "-")
+	str = strings.TrimSpace(str)
+	str = strings.TrimPrefix(str, "image: ")
+	str = strings.TrimSpace(str)
+	return str
 }
 
-func cleanUp(i map[string]interface{}) map[string]interface{} {
-	for n, v := range i {
-		if reflect.TypeOf(v) == reflect.TypeOf(map[string]interface{}{}) {
-			i[n] = cleanUp(v.(map[string]interface{}))
-		} else if reflect.TypeOf(v) == reflect.TypeOf(chartutil.Values{}) {
-			i[n] = cleanUp(v.(chartutil.Values))
-		} else if v == nil {
-			i[n] = ""
-		} else {
-			i[n] = v
+func cleanUp(fields map[string]interface{}) map[string]interface{} {
+	for key, val := range fields {
+		switch a := val.(type) {
+		case map[string]interface{}:
+			fields[key] = cleanUp(a)
+		case chartutil.Values:
+			fields[key] = cleanUp(a)
+		default:
+			if val == nil {
+				fields[key] = ""
+			} else {
+				fields[key] = val
+			}
 		}
 	}
-	return i
+	return fields
 }

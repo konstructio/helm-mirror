@@ -3,7 +3,6 @@ package service
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -37,7 +36,7 @@ type GetService struct {
 }
 
 // NewGetService return a new instace of GetService
-func NewGetService(config repo.Entry, allVersions bool, verbose bool, ignoreErrors bool, logger *log.Logger, newRootURL string, chartName string, chartVersion string) GetServiceInterface {
+func NewGetService(config repo.Entry, allVersions bool, verbose bool, ignoreErrors bool, logger *log.Logger, newRootURL string, chartName string, chartVersion string) *GetService {
 	return &GetService{
 		config:       config,
 		verbose:      verbose,
@@ -50,54 +49,53 @@ func NewGetService(config repo.Entry, allVersions bool, verbose bool, ignoreErro
 	}
 }
 
-//Get methods downloads the index file and the Helm charts to the working directory.
+// Get methods downloads the index file and the Helm charts to the working directory.
 func (g *GetService) Get() error {
 	chartRepo, err := repo.NewChartRepository(&g.config, getter.All(environment.EnvSettings{}))
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot construct chart repository: %w", err)
 	}
 
 	downloadedIndexPath := path.Join(g.config.Name, downloadedFileName)
 	err = chartRepo.DownloadIndexFile(downloadedIndexPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot download index file: %w", err)
 	}
 
 	err = chartRepo.Load()
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot load index file: %w", err)
 	}
 
 	index := search.NewIndex()
 	index.AddRepo(chartRepo.Config.Name, chartRepo.IndexFile, (g.allVersions || g.chartVersion != ""))
 	rexp := fmt.Sprintf("^.*%s.*", g.chartName)
-	res, err := index.Search(rexp, 1, true)
+	results, err := index.Search(rexp, 1, true)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot search index file: %w", err)
 	}
 
-	for _, r := range res {
-		if g.chartName != "" && r.Chart.Name != g.chartName {
+	for _, result := range results {
+		if g.chartName != "" && result.Chart.Name != g.chartName {
 			continue
 		}
-		if g.chartVersion != "" && r.Chart.Version != g.chartVersion {
+		if g.chartVersion != "" && result.Chart.Version != g.chartVersion {
 			continue
 		}
-		for _, u := range r.Chart.URLs {
-			b, err := chartRepo.Client.Get(u)
+		for _, u := range result.Chart.URLs {
+			buf, err := chartRepo.Client.Get(u)
 			if err != nil {
 				if g.ignoreErrors {
-					g.logger.Printf("WARNING: processing chart %s(%s) - %s", r.Name, r.Chart.Version, err)
+					g.logger.Printf("WARNING: processing chart %s(%s) - %s", result.Name, result.Chart.Version, err)
 					continue
-				} else {
-					return err
 				}
+				return fmt.Errorf("cannot download chart %s(%s): %w", result.Name, result.Chart.Version, err)
 			}
-			chartFileName := fmt.Sprintf("%s-%s.tgz", r.Chart.Name, r.Chart.Version)
+			chartFileName := fmt.Sprintf("%s-%s.tgz", result.Chart.Name, result.Chart.Version)
 			chartPath := path.Join(g.config.Name, chartFileName)
-			err = writeFile(chartPath, b.Bytes(), g.logger, g.ignoreErrors)
-			if err != nil {
-				return err
+
+			if err := writeFile(chartPath, buf.Bytes(), g.logger, g.ignoreErrors); err != nil {
+				return fmt.Errorf("cannot write chart %s(%s): %w", result.Name, result.Chart.Version, err)
 			}
 		}
 	}
@@ -110,11 +108,13 @@ func (g *GetService) Get() error {
 }
 
 func writeFile(name string, content []byte, log *log.Logger, ignoreErrors bool) error {
-	err := ioutil.WriteFile(name, content, 0666)
-	if ignoreErrors {
-		log.Printf("cannot write files %s: %s", name, err)
-	} else {
-		return err
+	err := os.WriteFile(name, content, 0o600)
+	if err != nil {
+		if ignoreErrors {
+			log.Printf("cannot write file %q: %s", name, err)
+		} else {
+			return fmt.Errorf("cannot write file %q: %w", name, err)
+		}
 	}
 	return nil
 }
@@ -123,15 +123,19 @@ func prepareIndexFile(folder string, repoURL string, newRootURL string, log *log
 	downloadedPath := path.Join(folder, downloadedFileName)
 	indexPath := path.Join(folder, indexFileName)
 	if newRootURL != "" {
-		indexContent, err := ioutil.ReadFile(downloadedPath)
+		indexContent, err := os.ReadFile(downloadedPath)
 		if err != nil {
-			return err
+			return fmt.Errorf("cannot read index file: %w", err)
 		}
-		content := bytes.Replace(indexContent, []byte(repoURL), []byte(newRootURL), -1)
-		err = writeFile(downloadedPath, []byte(content), log, ignoreErrors)
-		if err != nil {
+		content := bytes.ReplaceAll(indexContent, []byte(repoURL), []byte(newRootURL))
+		if err := writeFile(downloadedPath, content, log, ignoreErrors); err != nil {
+			//nolint:nilerr // ignore error
 			return nil
 		}
 	}
-	return os.Rename(downloadedPath, indexPath)
+
+	if err := os.Rename(downloadedPath, indexPath); err != nil {
+		return fmt.Errorf("cannot rename index file: %w", err)
+	}
+	return nil
 }

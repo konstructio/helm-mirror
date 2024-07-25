@@ -9,8 +9,8 @@ rm -rf "$workdir"
 mkdir "$workdir"
 
 for d in $(go list ./... | grep -v -E "vendor|fixtures"); do
-    f="$workdir/$(echo $d | tr / -).cover"
-    go test -covermode="$mode" -coverprofile="$f" $d
+    f="$workdir/$(echo "$d" | tr / -).cover"
+    go test -covermode="$mode" -coverprofile="$f" "$d"
 done
 
 echo "mode: $mode" >"$profile"

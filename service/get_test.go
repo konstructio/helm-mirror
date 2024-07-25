@@ -1,7 +1,8 @@
 package service
 
 import (
-	"io/ioutil"
+	"context"
+	"errors"
 	"log"
 	"os"
 	"path"
@@ -9,8 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/openSUSE/helm-mirror/fixtures"
-
+	"github.com/patrickdappollonio/helm-mirror/fixtures"
 	"k8s.io/helm/pkg/repo"
 )
 
@@ -23,7 +23,7 @@ func (m *mockLog) Write(p []byte) (n int, err error) {
 }
 
 func TestNewGetService(t *testing.T) {
-	dir, err := ioutil.TempDir("", "helmmirrortests")
+	dir, err := os.MkdirTemp("", "helmmirrortests")
 	if err != nil {
 		t.Errorf("Creating tmp directory: %s", err)
 	}
@@ -64,7 +64,7 @@ func TestGetService_Get(t *testing.T) {
 	}
 	defer os.RemoveAll(dir)
 	svr := fixtures.StartHTTPServer()
-	defer svr.Shutdown(nil)
+	defer svr.Shutdown(context.Background())
 	fixtures.WaitForServer("http://127.0.0.1:1793/alive")
 	type fields struct {
 		repoURL      string
@@ -111,7 +111,7 @@ func TestGetService_Get(t *testing.T) {
 				t.Errorf("GetService.Get() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if !tt.wantErr {
-				files, err := ioutil.ReadDir(path.Join(dir, "get"))
+				files, err := os.ReadDir(path.Join(dir, "get"))
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -150,7 +150,7 @@ func Test_writeFile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := writeFile(tt.args.name, tt.args.content, tt.args.log, tt.args.ignoreErrors); (err != nil) != tt.wantErr {
-				t.Errorf("writeFile() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("writeFile() error = %v, wantErr %v", errors.Unwrap(err), tt.wantErr)
 			}
 		})
 	}
@@ -180,13 +180,13 @@ func Test_prepareIndexFile(t *testing.T) {
 		{"3", args{path.Join(dir, "processfolder"), "http://127.0.0.1:1793", "", fakeLogger, false}, false},
 	}
 	for _, tt := range tests {
-		ioutil.WriteFile(path.Join(dir, "processfolder", "downloaded-index.yaml"), []byte(fixtures.IndexYaml), 0666)
+		os.WriteFile(path.Join(dir, "processfolder", "downloaded-index.yaml"), []byte(fixtures.IndexYaml), 0o666)
 		t.Run(tt.name, func(t *testing.T) {
 			if err := prepareIndexFile(tt.args.folder, tt.args.URL, tt.args.newRootURL, tt.args.log, tt.args.ignoreErrors); (err != nil) != tt.wantErr {
 				t.Errorf("prepareIndexFile() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.name == "1" {
-				contentBytes, err := ioutil.ReadFile(path.Join(dir, "processfolder", "index.yaml"))
+				contentBytes, err := os.ReadFile(path.Join(dir, "processfolder", "index.yaml"))
 				if err != nil {
 					t.Log("Error reading index.yaml")
 				}

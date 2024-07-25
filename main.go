@@ -1,4 +1,5 @@
 // Copyright © 2018 openSUSE opensuse-project@opensuse.org
+// Copyright © 2024 Patrick D'appollonio github@patrickdap.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
 
 package main
 
-import "github.com/openSUSE/helm-mirror/cmd"
+import "github.com/patrickdappollonio/helm-mirror/cmd"
 
 func main() {
 	cmd.Execute()

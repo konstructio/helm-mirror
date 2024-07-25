@@ -1,4 +1,5 @@
 // Copyright © 2018 openSUSE opensuse-project@opensuse.org
+// Copyright © 2024 Patrick D'appollonio github@patrickdap.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,22 +24,22 @@ import (
 	"path"
 	"strings"
 
-	"github.com/openSUSE/helm-mirror/service"
+	"github.com/patrickdappollonio/helm-mirror/service"
 	"github.com/spf13/cobra"
 	"k8s.io/helm/pkg/repo"
 )
 
+//nolint:gochecknoglobals
 var (
-	//Verbose defines if the command is being run with verbose mode
+	// Verbose defines if the command is being run with verbose mode
 	Verbose bool
-	//IgnoreErrors ignores errors in processing charts
+	// IgnoreErrors ignores errors in processing charts
 	IgnoreErrors bool
-	//AllVersions gets all the versions of the charts when true, false by default
+	// AllVersions gets all the versions of the charts when true, false by default
 	AllVersions  bool
 	chartName    string
 	chartVersion string
 	folder       string
-	repoURL      *url.URL
 	flags        = log.Ldate | log.Lmicroseconds | log.Lshortfile
 	prefix       = "helm-mirror: "
 	logger       *log.Logger
@@ -54,13 +55,12 @@ const rootDesc = `Mirror Helm Charts from an index file into a local folder.
 
 For example:
 
-helm mirror https://yourorg.com/charts /yourorg/charts
+	helm-mirror https://charts.example.com/ /path/to/downloaded/charts
 
-This will download the index file and the charts into
-the folder indicated.
+This will download the index file and the latest version of the charts into the
+folder indicated.
 
-The index file is a yaml that contains a list of
-charts in this format. Example:
+The index file is a YAML that contains a list of charts in this format. Example:
 
 	apiVersion: v1
 	entries:
@@ -71,7 +71,7 @@ charts in this format. Example:
 	    digest: 3aa68d6cb66c14c1fcffc6dc6d0ad8a65b90b90c10f9f04125dc6fcaf8ef1b20
 	    name: chart
 	    urls:
-	    - https://kubernetes-charts.yourorganization.com/chart-1.0.0.tgz
+	    - https://kubernetes-charts.example.com/chart-1.0.0.tgz
 	  chart2:
 	  - apiVersion: 1.0.0
 	    created: 2018-08-08T00:00:00.00000000Z
@@ -79,16 +79,18 @@ charts in this format. Example:
 	    digest: 7ae62d60b61c14c1fcffc6dc670e72e62b91b91c10f9f04125dc67cef2ef0b21
 	    name: chart
 	    urls:
-	    - https://kubernetes-charts.yourorganization.com/chart2-1.0.0.tgz
+	    - https://kubernetes-charts.example.com/chart2-1.0.0.tgz
 
 This will download these charts
 
-	https://kubernetes-charts.yourorganization.com/chart-1.0.0.tgz
-	https://kubernetes-charts.yourorganization.com/chart2-1.0.0.tgz
+	https://kubernetes-charts.example.com/chart-1.0.0.tgz
+	https://kubernetes-charts.example.com/chart2-1.0.0.tgz
 
-into your destination folder.`
+Into your destination folder.`
 
 // rootCmd represents the base command when called without any subcommands
+//
+//nolint:gochecknoglobals
 var rootCmd = &cobra.Command{
 	Use:   "mirror [Repo URL] [Destination Folder]",
 	Short: "Mirror Helm Charts from an index file into a local folder.",
@@ -101,7 +103,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
@@ -122,7 +124,7 @@ func init() {
 	rootCmd.AddCommand(newVersionCmd())
 }
 
-func validateRootArgs(cmd *cobra.Command, args []string) error {
+func validateRootArgs(_ *cobra.Command, args []string) error {
 	if len(args) < 2 {
 		if len(args) == 1 && args[0] == "help" {
 			return nil
@@ -133,7 +135,7 @@ func validateRootArgs(cmd *cobra.Command, args []string) error {
 	url, err := url.Parse(args[0])
 	if err != nil {
 		logger.Printf("error: not a valid URL for index file: %s", err)
-		return err
+		return fmt.Errorf("error: %q is not a valid URL for index file: %w", args[0], err)
 	}
 
 	if !strings.Contains(url.Scheme, "http") {
@@ -147,17 +149,17 @@ func validateRootArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func runRoot(cmd *cobra.Command, args []string) error {
+func runRoot(_ *cobra.Command, args []string) error {
 	repoURL, err := url.Parse(args[0])
 	if err != nil {
 		logger.Printf("error: not a valid URL for index file: %s", err)
-		return err
+		return fmt.Errorf("error: %q is not a valid URL for index file: %w", args[0], err)
 	}
 	folder = args[1]
-	err = os.MkdirAll(folder, 0744)
+	err = os.MkdirAll(folder, 0o744)
 	if err != nil {
 		logger.Printf("error: cannot create destination folder: %s", err)
-		return err
+		return fmt.Errorf("cannot create destination folder %q: %w", folder, err)
 	}
 
 	rootURL := &url.URL{}
@@ -165,7 +167,7 @@ func runRoot(cmd *cobra.Command, args []string) error {
 		rootURL, err = url.Parse(newRootURL)
 		if err != nil {
 			logger.Printf("error: new-root-url not a valid URL: %s", err)
-			return err
+			return fmt.Errorf("error: %q is not a valid URL: %w", newRootURL, err)
 		}
 
 		if !strings.Contains(rootURL.Scheme, "http") {
@@ -189,9 +191,8 @@ func runRoot(cmd *cobra.Command, args []string) error {
 		KeyFile:  keyFile,
 	}
 	getService := service.NewGetService(config, AllVersions, Verbose, IgnoreErrors, logger, rootURL.String(), chartName, chartVersion)
-	err = getService.Get()
-	if err != nil {
-		return err
+	if err := getService.Get(); err != nil {
+		return fmt.Errorf("cannot download index and charts to the specified directory: %w", err)
 	}
 	return nil
 }

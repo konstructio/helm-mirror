@@ -2,11 +2,12 @@ package formatter
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"strings"
 
 	"github.com/containers/image/types"
-	"github.com/docker/distribution/reference"
+	"github.com/distribution/reference"
 	yamlencoder "gopkg.in/yaml.v3"
 )
 
@@ -15,7 +16,7 @@ type skopeo struct {
 	l        *log.Logger
 }
 
-func newSkopeoFormatter(fileName string, logger *log.Logger) Formatter {
+func newSkopeoFormatter(fileName string, logger *log.Logger) *skopeo {
 	return &skopeo{
 		fileName: fileName,
 		l:        logger,
@@ -24,8 +25,7 @@ func newSkopeoFormatter(fileName string, logger *log.Logger) Formatter {
 
 func (f *skopeo) Output(b bytes.Buffer) error {
 	images := strings.Split(b.String(), "\n")
-	var registries Registries
-	registries = make(map[string]Registry)
+	registries := make(map[string]Registry)
 	for _, i := range images {
 		if i != "" {
 			ref, err := reference.ParseNormalizedNamed(i)
@@ -59,7 +59,7 @@ func (f *skopeo) Output(b bytes.Buffer) error {
 	y, err := yamlencoder.Marshal(registries)
 	if err != nil {
 		f.l.Printf("error: cannot encode yaml")
-		return err
+		return fmt.Errorf("cannot encode yaml: %w", err)
 	}
 	err = writeFile(f.fileName, y, f.l)
 	if err != nil {
@@ -68,7 +68,7 @@ func (f *skopeo) Output(b bytes.Buffer) error {
 	return nil
 }
 
-//TODO use Skopeo's source code structures
+// TODO use Skopeo's source code structures
 
 // Registry definition of a registry to be used by Skopeo
 type Registry struct {

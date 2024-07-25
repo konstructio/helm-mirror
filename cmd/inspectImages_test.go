@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/openSUSE/helm-mirror/formatter"
+	"github.com/patrickdappollonio/helm-mirror/formatter"
 	"github.com/spf13/cobra"
 )
 
@@ -74,7 +74,7 @@ func Test_resolveFormatter(t *testing.T) {
 }
 
 func Test_runInspectImages(t *testing.T) {
-	var cmd = &cobra.Command{}
+	cmd := &cobra.Command{}
 	cmd.PersistentFlags().StringVarP(&output, "output", "o", "stdout", outputDesc)
 	type args struct {
 		cmd  *cobra.Command
@@ -101,6 +101,6 @@ var fakeLog = log.New(&mockLog{}, "tests:", log.LstdFlags)
 
 type mockLog struct{}
 
-func (m *mockLog) Write(p []byte) (n int, err error) {
+func (m *mockLog) Write(_ []byte) (n int, err error) {
 	return 0, nil
 }

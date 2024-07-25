@@ -1,4 +1,5 @@
 // Copyright © 2018 openSUSE opensuse-project@opensuse.org
+// Copyright © 2024 Patrick D'appollonio github@patrickdap.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +27,8 @@ var version = "unkwown"
 
 // gitCommit is the commit hash that the binary was built from and will be
 // populated on build by make.
+//
+//nolint:gochecknoglobals
 var gitCommit = ""
 
 // versionCmd represents the version command
@@ -38,12 +41,12 @@ func newVersionCmd() *cobra.Command {
 }
 
 func runVersion(*cobra.Command, []string) {
-	v := ""
+	ver := ""
 	if version != "" {
-		v = version
+		ver = version
 	}
 	if gitCommit != "" {
-		v = fmt.Sprintf("%s~git%s", v, gitCommit)
+		ver = fmt.Sprintf("%s~git%s", ver, gitCommit)
 	}
-	fmt.Println(v)
+	fmt.Println(ver)
 }

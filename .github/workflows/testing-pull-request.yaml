@@ -1,0 +1,36 @@
+name: Testing code for the entire pull request
+on:
+  pull_request:
+
+jobs:
+  test-app:
+    name: Test Application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Test application
+        run: go test -v ./...
+      - name: Capture git tag
+        id: vars
+        run: |
+          echo "tag=$GITHUB_SHA" >> $GITHUB_OUTPUT
+      - name: Replace version in plugin.yaml
+        run: |
+          yq e ".version = \"${{ steps.vars.outputs.tag }}\"" -i plugin.yaml
+      - name: Assert with yq that the tag has changed
+        run: |
+          yq e ".version" plugin.yaml | grep -q "$GITHUB_SHA"
+          echo "Tag has been updated to $(yq e ".version" plugin.yaml)"
+      - name: Dry-run goreleaser application
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "~> v2"
+          args: release --snapshot --skip=publish --clean

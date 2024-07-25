@@ -1,132 +1,89 @@
-## Contribution Guidelines ##
+# Contributing to `helm-mirror`
 
-If you're reading this, you're likely interested in contributing to this
-project. That's great! The intention of this document is to describe the basic
-requirements and rules-of-thumb for contributions.
+Welcome! We're excited that you're interested in contributing to `helm-mirror`. This project [was originally created by openSUSE](https://github.com/openSUSE/helm-mirror) but it seems it has been abandoned. By forking and continuing development, we aim to breathe new life into it and welcome contributions from the community to help achieve this goal.
 
-### Issues ###
+## How to Contribute
 
-If you have found a bug in this project or have a question, first make sure
-that the issue you are facing has not already been reported by another user. If
-the issue you are facing has already been reported and you have more
-information to provide, feel free to add a follow-up comment (but avoid adding
-"me too" style comments as it distracts from discussion). If you couldn't find
-an existing report for your issue, feel free to [open a new issue][issue-new].
-If you do not wish to use proprietary software to submit an issue, you may send
-an email to SUSE Containers Team <mailto:containers@suse.com> and we will submit
-an issue on your behalf.
+We welcome all kinds of contributions, including bug fixes, new features, documentation improvements, and more. Here are some ways you can help:
 
-When reporting an issue, please provide the following information (to the best
-of your ability) so we can debug your issue far more easily:
+- **Reporting Bugs:** Found a bug? Please create an issue describing the problem and any steps to reproduce it.
+- **Suggesting Features:** Have an idea for a new feature? Open an issue to discuss it.
+- **Submitting Pull Requests:** Ready to contribute code? Fork the repository, make your changes, and submit a pull request.
 
-* The version of this project you are using. If you are not using the latest
-  version of this project, please try to reproduce your issue on the latest
-  version.
+## Contribution Guidelines
 
-* A (short) description of what you are trying to accomplish so as to avoid the
-  [XY problem][xy-problem].
+To make the process smooth for everyone, please follow these guidelines:
 
-* A minimal example of the bug with a contrast between what you expect to
-  happen versus what actually happened.
+### 1. Fork the Repository
 
-[issue-new]: https://github.com/openSUSE/helm-mirror/issues/new
-[xy-problem]: http://xyproblem.info/
+Fork the repository on GitHub and clone your fork locally:
 
-### Submitting Changes ###
-
-In order to submit a change, you may [create a pull request][pr-new].  If you
-do not wish to use proprietary software to submit an pull request, you may send
-an email to SUSE Containers Team <mailto:containers@suse.com> and I will submit
-a pull request on your behalf.
-
-All changes should be based off the latest commit of the master branch of this
-project. In order for a change to be merged into this project, it must fulfil
-all of the following requirements (note that many of these only apply for major
-changes):
-
-* All changes must pass the automated testing and continuous integration. This
-  means they must build successfully without errors, must not produce errors
-  from static analysis and must not break existing functionality. You can run
-  all of these tests on your local machine if you wish by reading through
-  `.travis.yml` and running the listed commands.
-
-* All changes must be formatted using the Go style conventions, which ensures
-  that code remains consistent. You can automatically format your code in any
-  given `file.go` using `go fmt -s -w file.go`.
-
-* Any significant changes (such as those that implement a feature or fix a bug)
-  must include an entry in the top-level [`CHANGELOG.md`][changelog] (see the
-  file for more details) that describes the change and links to the pull
-  request that implemented it (as well as issues that are being resolved).
-
-* Any feature change or bug fix should include one or more corresponding test
-  cases to ensure that the code is operating as intended. Significant features
-  warrant the addition of significant numbers of both integration and unit
-  tests.
-
-* Any feature change should include a corresponding change to the project
-  documentation describing the feature and how it should be used.
-
-If you miss any of the above things, don't worry we'll remind you and provide
-help if you need any. In addition to the above requirements, your code will be
-reviewed by the maintainer(s) of this project, using the looks-good-to-me
-system (LGTM). All patches must have the approval of at least two maintainers
-that did not author a change before they are merged (the only exception to this
-is related to the approval of security patches -- which must be approved in
-private instead -- and cases where there are not enough maintainers to fulfil
-this requirement).
-
-Each commit should be self-contained and minimal (and should build and pass the
-tests individually), and commit messages should follow the Linux kernel style
-of commit messages. For more information see [&sect; 2 and 3 of
-`submitting-patches.rst` from the Linux kernel source][lk-commit].
-
-In addition, all commits must include a `Signed-off-by:` line in their
-description. This indicates that you certify [the following statement, known as
-the Developer Certificate of Origin][dco]). You can automatically add this line
-to your commits by using `git commit -s --amend`.
-
-```
-Developer Certificate of Origin
-Version 1.1
-
-Copyright (C) 2004, 2006 The Linux Foundation and its contributors.
-1 Letterman Drive
-Suite D4700
-San Francisco, CA, 94129
-
-Everyone is permitted to copy and distribute verbatim copies of this
-license document, but changing it is not allowed.
-
-
-Developer's Certificate of Origin 1.1
-
-By making a contribution to this project, I certify that:
-
-(a) The contribution was created in whole or in part by me and I
-    have the right to submit it under the open source license
-    indicated in the file; or
-
-(b) The contribution is based upon previous work that, to the best
-    of my knowledge, is covered under an appropriate open source
-    license and I have the right under that license to submit that
-    work with modifications, whether created in whole or in part
-    by me, under the same open source license (unless I am
-    permitted to submit under a different license), as indicated
-    in the file; or
-
-(c) The contribution was provided directly to me by some other
-    person who certified (a), (b) or (c) and I have not modified
-    it.
-
-(d) I understand and agree that this project and the contribution
-    are public and that a record of the contribution (including all
-    personal information I submit with it, including my sign-off) is
-    maintained indefinitely and may be redistributed consistent with
-    this project or the open source license(s) involved.
+```bash
+git clone https://github.com/patrickdappollonio/helm-mirror.git
+cd helm-mirror
 ```
 
-[pr-new]: https://github.com/openSUSE/helm-mirror/compare
-[changelog]: /CHANGELOG.md
-[lk-commit]: https://www.kernel.org/doc/Documentation/process/submitting-patches.rst
-[dco]: https://developercertificate.org/
+### 2. Create a Branch
+
+Create a branch for your changes:
+
+```bash
+git checkout -b my-feature-branch
+```
+
+### 3. Make Your Changes
+
+Make your changes in the branch you created.
+
+### 4. Commit Your Changes
+
+Commit your changes with a clear and descriptive message. **Please ensure all commits are signed** with *either* an SSH or GPG key. This helps us verify that you agree to contribute your code to the project.
+
+```bash
+git commit -s -m "Add a brief message describing the changes"
+```
+
+### 5. Push Your Changes
+
+Push your changes to your forked repository:
+
+```bash
+git push origin my-feature-branch
+```
+
+### 6. Create a Pull Request
+
+Go to the original repository on GitHub and create a pull request. Provide a clear description of your changes and any relevant information.
+
+## Code of Conduct
+
+We are committed to fostering a welcoming and inclusive community. To ensure a positive environment for everyone, please adhere to the following guidelines:
+
+- **Be Respectful:** Treat everyone with respect. Harassment, discrimination, or offensive behavior will not be tolerated.
+- **Be Constructive:** Provide constructive feedback. Offer suggestions for improvement rather than simply criticizing.
+- **Be Collaborative:** Work together and help others when you can. Share knowledge and be open to learning from others.
+- **Be Patient:** Understand that everyone has different levels of experience and knowledge. Be patient and willing to explain concepts when necessary.
+- **Be Open:** Embrace diversity and be inclusive of all individuals, regardless of background or identity.
+- **Respect Privacy:** Do not share private information about other contributors without their consent.
+- **Report Issues:** If you witness or experience any violations of this Code of Conduct, please report it to the project maintainers immediately.
+
+By participating in this project, you agree to adhere to this Code of Conduct. Thank you for helping us create a positive and inclusive community!
+
+## Keeping the Spirit of Copyleft
+
+While this project is licensed under the Apache License, Version 2.0, we encourage contributions to be made with the spirit of copyleft in mind. This means:
+
+- Sharing modifications and improvements with the community.
+- Maintaining open and collaborative development practices.
+
+## License
+
+By contributing to this project, you agree that your contributions will be licensed under the Apache License, Version 2.0.
+
+## Questions?
+
+If you have any questions or need further assistance, feel free to open an issue.
+
+Thank you for your interest in contributing to `helm-mirror`! Your efforts and contributions are highly appreciated.
+
+Happy coding!

@@ -1,4 +1,5 @@
 // Copyright © 2018 openSUSE opensuse-project@opensuse.org
+// Copyright © 2024 Patrick D'appollonio github@patrickdap.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,16 +17,18 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"path"
 	"path/filepath"
 	"strings"
 
-	"github.com/openSUSE/helm-mirror/formatter"
-	"github.com/openSUSE/helm-mirror/service"
+	"github.com/patrickdappollonio/helm-mirror/formatter"
+	"github.com/patrickdappollonio/helm-mirror/service"
 	"github.com/spf13/cobra"
 )
 
+//nolint:gochecknoglobals
 var (
 	output string
 	target string
@@ -67,6 +70,8 @@ Usage:
 `
 
 // inspectImagesCmd represents the images command
+//
+//nolint:gochecknoglobals
 var inspectImagesCmd = &cobra.Command{
 	Use:   "inspect-images [folder|tgzfile]",
 	Short: "Extract all the container images listed in each chart.",
@@ -76,12 +81,11 @@ var inspectImagesCmd = &cobra.Command{
 }
 
 func init() {
-
 	inspectImagesCmd.PersistentFlags().StringVarP(&output, "output", "o", "stdout", outputDesc)
 	rootCmd.AddCommand(inspectImagesCmd)
 }
 
-func validateInspectImagesArgs(cmd *cobra.Command, args []string) error {
+func validateInspectImagesArgs(_ *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		logger.Print("error: requires at least one arg to execute")
 		return errors.New("error: requires at least one arg")
@@ -93,43 +97,48 @@ func validateInspectImagesArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func resolveFormatter(output string, l *log.Logger) (formatter.Formatter, error) {
-	a := strings.Split(output, "=")
+//nolint:ireturn
+func resolveFormatter(output string, logger *log.Logger) (formatter.Formatter, error) {
 	imagesFile := "images.out"
-	if len(a) > 1 {
-		imagesFile = a[1]
+
+	pieces := strings.Split(output, "=")
+	if len(pieces) > 1 {
+		imagesFile = pieces[1]
 	}
+
 	imagesFile, err := filepath.Abs(imagesFile)
 	if err != nil {
-		l.Print("error: geting working directory")
-		return nil, err
+		logger.Print("error: getting working directory")
+		return nil, fmt.Errorf("cannot get working directory: %w", err)
 	}
-	var t formatter.Type
-	switch a[0] {
+
+	var ftype formatter.Type
+	switch pieces[0] {
 	case "file":
-		t = formatter.FileType
+		ftype = formatter.FileType
 	case "yaml":
-		t = formatter.YamlType
+		ftype = formatter.YamlType
 	case "json":
-		t = formatter.JSONType
+		ftype = formatter.JSONType
 	case "skopeo":
-		t = formatter.SkopeoType
+		ftype = formatter.SkopeoType
 	default:
-		t = formatter.StdoutType
+		ftype = formatter.StdoutType
 	}
-	return formatter.NewFormatter(t, imagesFile, l), nil
+
+	return formatter.NewFormatter(ftype, imagesFile, logger), nil
 }
 
-func runInspectImages(cmd *cobra.Command, args []string) error {
+func runInspectImages(_ *cobra.Command, args []string) error {
 	target = args[0]
 	formatter, err := resolveFormatter(output, logger)
 	if err != nil {
 		return err
 	}
+
 	imagesService := service.NewImagesService(target, Verbose, IgnoreErrors, formatter, logger)
-	err = imagesService.Images()
-	if err != nil {
-		return err
+	if err := imagesService.Images(); err != nil {
+		return fmt.Errorf("cannot extract images: %w", err)
 	}
 	return nil
 }

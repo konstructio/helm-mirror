@@ -3,6 +3,7 @@ package formatter
 import (
 	"bytes"
 	jsonencoding "encoding/json"
+	"fmt"
 	"log"
 	"strings"
 )
@@ -12,7 +13,7 @@ type json struct {
 	l        *log.Logger
 }
 
-func newJSONFormatter(fileName string, logger *log.Logger) Formatter {
+func newJSONFormatter(fileName string, logger *log.Logger) *json {
 	return &json{
 		fileName: fileName,
 		l:        logger,
@@ -21,16 +22,16 @@ func newJSONFormatter(fileName string, logger *log.Logger) Formatter {
 
 func (f *json) Output(b bytes.Buffer) error {
 	imgs := strings.Split(b.String(), "\n")
-	var im Images
+	var images Images
 	for _, i := range imgs {
 		if i != "" {
-			im.Names = append(im.Names, i)
+			images.Names = append(images.Names, i)
 		}
 	}
-	j, err := jsonencoding.Marshal(im)
+	j, err := jsonencoding.Marshal(images)
 	if err != nil {
 		f.l.Printf("error: cannot encode json")
-		return err
+		return fmt.Errorf("cannot encode json: %w", err)
 	}
 	err = writeFile(f.fileName, j, f.l)
 	if err != nil {

@@ -1,28 +1,38 @@
-module github.com/openSUSE/helm-mirror
+module github.com/patrickdappollonio/helm-mirror
 
-go 1.12
+go 1.22.0
 
 require (
-	github.com/Masterminds/goutils v1.1.0 // indirect
-	github.com/Masterminds/semver v1.4.2 // indirect
-	github.com/Masterminds/sprig v2.19.0+incompatible // indirect
 	github.com/containers/image v3.0.2+incompatible
-	github.com/cyphar/filepath-securejoin v0.2.2 // indirect
-	github.com/docker/distribution v2.7.1+incompatible
-	github.com/ghodss/yaml v0.0.0-20180820084758-c7ce16629ff4 // indirect
+	github.com/distribution/reference v0.6.0
+	github.com/pkg/errors v0.9.1
+	github.com/spf13/cobra v1.8.1
+	gopkg.in/yaml.v3 v3.0.1
+	k8s.io/helm v2.17.0+incompatible
+)
+
+require (
+	github.com/BurntSushi/toml v1.4.0 // indirect
+	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver v1.5.0 // indirect
+	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
+	github.com/cyphar/filepath-securejoin v0.3.1 // indirect
+	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/golang/protobuf v1.2.0 // indirect
-	github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c // indirect
-	github.com/huandu/xstrings v1.2.0 // indirect
-	github.com/imdario/mergo v0.3.7 // indirect
-	github.com/opencontainers/go-digest v0.0.0-20170106003457-a6d0ee40d420 // indirect
-	github.com/opencontainers/image-spec v1.0.0 // indirect
-	github.com/pkg/errors v0.8.1
-	github.com/spf13/cobra v0.0.5
+	github.com/golang/protobuf v1.5.4 // indirect
+	github.com/google/uuid v1.6.0 // indirect
+	github.com/huandu/xstrings v1.5.0 // indirect
+	github.com/imdario/mergo v0.3.6 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
+	github.com/mitchellh/reflectwalk v1.0.2 // indirect
+	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
-	gopkg.in/yaml.v3 v3.0.0-20190905181640-827449938966
-	k8s.io/apimachinery v0.0.0-20190404173353-6a84e37a896d // indirect
-	k8s.io/client-go v0.0.0-20190409021438-1a26190bd76a // indirect
-	k8s.io/helm v2.16.1+incompatible
+	golang.org/x/crypto v0.25.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+	k8s.io/apimachinery v0.30.3 // indirect
+	k8s.io/client-go v0.30.3 // indirect
 )
