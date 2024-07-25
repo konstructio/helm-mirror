@@ -42,4 +42,5 @@ jobs:
           version: "~> v2"
           args: release --clean
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # for local release
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}         # for homebrew release
