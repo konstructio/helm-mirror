@@ -23,7 +23,6 @@ linters:
     - errchkjson
     - errname
     - errorlint
-    - execinquery
     - exhaustive
     - exportloopref
     - forcetypeassert
@@ -31,7 +30,6 @@ linters:
     - gocheckcompilerdirectives
     - gochecknoglobals
     - gochecksumtype
-    - gocognit
     - goconst
     - gocritic
     - gocyclo

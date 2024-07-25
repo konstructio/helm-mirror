@@ -19,12 +19,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
-	"github.com/patrickdappollonio/helm-mirror/formatter"
-	"github.com/patrickdappollonio/helm-mirror/service"
+	"github.com/konstructio/helm-mirror/formatter"
+	"github.com/konstructio/helm-mirror/service"
 	"github.com/spf13/cobra"
 )
 
@@ -86,14 +87,18 @@ func init() {
 }
 
 func validateInspectImagesArgs(_ *cobra.Command, args []string) error {
+	logger := log.New(os.Stderr, prefix, flags)
+
 	if len(args) < 1 {
 		logger.Print("error: requires at least one arg to execute")
 		return errors.New("error: requires at least one arg")
 	}
+
 	if !path.IsAbs(args[0]) {
 		logger.Printf("error: please provide a full path for [folder|tgzfile]: `%s`", args[0])
 		return errors.New("error: please provide a full path for [folder|tgzfile]")
 	}
+
 	return nil
 }
 
@@ -130,6 +135,8 @@ func resolveFormatter(output string, logger *log.Logger) (formatter.Formatter, e
 }
 
 func runInspectImages(_ *cobra.Command, args []string) error {
+	logger := log.New(os.Stderr, prefix, flags)
+
 	target = args[0]
 	formatter, err := resolveFormatter(output, logger)
 	if err != nil {
@@ -140,5 +147,6 @@ func runInspectImages(_ *cobra.Command, args []string) error {
 	if err := imagesService.Images(); err != nil {
 		return fmt.Errorf("cannot extract images: %w", err)
 	}
+
 	return nil
 }

@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/patrickdappollonio/helm-mirror/formatter"
+	"github.com/konstructio/helm-mirror/formatter"
 	"github.com/pkg/errors"
 	"k8s.io/helm/pkg/chartutil"
 	"k8s.io/helm/pkg/engine"

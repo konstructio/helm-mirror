@@ -36,16 +36,16 @@ snapshot:
   name_template: "{{ incpatch .Version }}-next"
 dockers:
   - image_templates:
-      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "ghcr.io/konstructio/{{ .ProjectName }}:{{ .Tag }}-amd64"
     goos: linux
     goarch: amd64
     use: buildx
     build_flag_templates:
       - "--platform=linux/amd64"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.description={{ .ProjectName }} version {{ .Version }}. See release notes at https://github.com/patrickdappollonio/{{ .ProjectName }}/releases/tag/v{{ .RawVersion }}"
-      - "--label=org.opencontainers.image.url=https://github.com/patrickdappollonio/{{ .ProjectName }}"
-      - "--label=org.opencontainers.image.source=https://github.com/patrickdappollonio/{{ .ProjectName }}"
+      - "--label=org.opencontainers.image.description={{ .ProjectName }} version {{ .Version }}. See release notes at https://github.com/konstructio/{{ .ProjectName }}/releases/tag/v{{ .RawVersion }}"
+      - "--label=org.opencontainers.image.url=https://github.com/konstructio/{{ .ProjectName }}"
+      - "--label=org.opencontainers.image.source=https://github.com/konstructio/{{ .ProjectName }}"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
@@ -55,16 +55,16 @@ dockers:
       - scripts/install-binary.sh
       - plugin.yaml
   - image_templates:
-      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-arm64"
+      - "ghcr.io/konstructio/{{ .ProjectName }}:{{ .Tag }}-arm64"
     goos: linux
     goarch: arm64
     use: buildx
     build_flag_templates:
       - "--platform=linux/arm64"
       - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.description={{ .ProjectName }} version {{ .Version }}. See release notes at https://github.com/patrickdappollonio/{{ .ProjectName }}/releases/tag/v{{ .RawVersion }}"
-      - "--label=org.opencontainers.image.url=https://github.com/patrickdappollonio/{{ .ProjectName }}"
-      - "--label=org.opencontainers.image.source=https://github.com/patrickdappollonio/{{ .ProjectName }}"
+      - "--label=org.opencontainers.image.description={{ .ProjectName }} version {{ .Version }}. See release notes at https://github.com/konstructio/{{ .ProjectName }}/releases/tag/v{{ .RawVersion }}"
+      - "--label=org.opencontainers.image.url=https://github.com/konstructio/{{ .ProjectName }}"
+      - "--label=org.opencontainers.image.source=https://github.com/konstructio/{{ .ProjectName }}"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - '--label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}'
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
@@ -74,18 +74,18 @@ dockers:
       - scripts/install-binary.sh
       - plugin.yaml
 docker_manifests:
-  - name_template: "ghcr.io/patrickdappollonio/{{ .ProjectName }}:v{{ .RawVersion }}"
+  - name_template: "ghcr.io/konstructio/{{ .ProjectName }}:v{{ .RawVersion }}"
     image_templates:
-      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-amd64"
-      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-arm64"
-  - name_template: "ghcr.io/patrickdappollonio/{{ .ProjectName }}:v{{ .Major }}"
+      - "ghcr.io/konstructio/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "ghcr.io/konstructio/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "ghcr.io/konstructio/{{ .ProjectName }}:v{{ .Major }}"
     image_templates:
-      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-amd64"
-      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-arm64"
-  - name_template: "ghcr.io/patrickdappollonio/{{ .ProjectName }}:latest"
+      - "ghcr.io/konstructio/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "ghcr.io/konstructio/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "ghcr.io/konstructio/{{ .ProjectName }}:latest"
     image_templates:
-      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-amd64"
-      - "ghcr.io/patrickdappollonio/{{ .ProjectName }}:{{ .Tag }}-arm64"
+      - "ghcr.io/konstructio/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "ghcr.io/konstructio/{{ .ProjectName }}:{{ .Tag }}-arm64"
 changelog:
   sort: asc
   filters:

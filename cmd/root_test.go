@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/patrickdappollonio/helm-mirror/fixtures"
+	"github.com/konstructio/helm-mirror/fixtures"
 	"github.com/spf13/cobra"
 )
 

@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/patrickdappollonio/helm-mirror/formatter"
+	"github.com/konstructio/helm-mirror/formatter"
 	"github.com/spf13/cobra"
 )
 

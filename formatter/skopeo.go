@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/containers/image/types"
+	"github.com/containers/image/v5/types"
 	"github.com/distribution/reference"
 	yamlencoder "gopkg.in/yaml.v3"
 )

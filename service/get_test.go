@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/patrickdappollonio/helm-mirror/fixtures"
+	"github.com/konstructio/helm-mirror/fixtures"
 	"k8s.io/helm/pkg/repo"
 )
 
@@ -149,7 +149,11 @@ func Test_writeFile(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := writeFile(tt.args.name, tt.args.content, tt.args.log, tt.args.ignoreErrors); (err != nil) != tt.wantErr {
+			g := &GetService{
+				logger:       tt.args.log,
+				ignoreErrors: tt.args.ignoreErrors,
+			}
+			if err := g.writeFile(tt.args.name, tt.args.content); (err != nil) != tt.wantErr {
 				t.Errorf("writeFile() error = %v, wantErr %v", errors.Unwrap(err), tt.wantErr)
 			}
 		})
@@ -182,9 +186,15 @@ func Test_prepareIndexFile(t *testing.T) {
 	for _, tt := range tests {
 		os.WriteFile(path.Join(dir, "processfolder", "downloaded-index.yaml"), []byte(fixtures.IndexYaml), 0o666)
 		t.Run(tt.name, func(t *testing.T) {
-			if err := prepareIndexFile(tt.args.folder, tt.args.URL, tt.args.newRootURL, tt.args.log, tt.args.ignoreErrors); (err != nil) != tt.wantErr {
+			g := &GetService{
+				logger:       tt.args.log,
+				ignoreErrors: tt.args.ignoreErrors,
+			}
+
+			if err := g.prepareIndexFile(tt.args.folder, tt.args.URL, tt.args.newRootURL); (err != nil) != tt.wantErr {
 				t.Errorf("prepareIndexFile() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 			if tt.name == "1" {
 				contentBytes, err := os.ReadFile(path.Join(dir, "processfolder", "index.yaml"))
 				if err != nil {

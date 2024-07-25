@@ -19,7 +19,7 @@ To make the process smooth for everyone, please follow these guidelines:
 Fork the repository on GitHub and clone your fork locally:
 
 ```bash
-git clone https://github.com/patrickdappollonio/helm-mirror.git
+git clone https://github.com/konstructio/helm-mirror.git
 cd helm-mirror
 ```
 

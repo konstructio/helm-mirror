@@ -1,6 +1,12 @@
-name: Testing code on push
+name: Testing code - Commits not tied to PRs
 on:
   push:
+    branches-ignore:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   test-app:
@@ -15,5 +21,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - name: Run GolangCI-Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.59
       - name: Test application
         run: go test -v ./...

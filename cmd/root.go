@@ -24,7 +24,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/patrickdappollonio/helm-mirror/service"
+	"github.com/konstructio/helm-mirror/service"
 	"github.com/spf13/cobra"
 	"k8s.io/helm/pkg/repo"
 )
@@ -40,9 +40,8 @@ var (
 	chartName    string
 	chartVersion string
 	folder       string
-	flags        = log.Ldate | log.Lmicroseconds | log.Lshortfile
+	flags        = log.Ldate | log.Lmicroseconds
 	prefix       = "helm-mirror: "
-	logger       *log.Logger
 	username     string
 	password     string
 	caFile       string
@@ -109,7 +108,6 @@ func Execute() {
 }
 
 func init() {
-	logger = log.New(os.Stdout, prefix, flags)
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&IgnoreErrors, "ignore-errors", "i", false, "ignores errors while downloading or processing charts")
 	rootCmd.PersistentFlags().BoolVarP(&AllVersions, "all-versions", "a", false, "gets all the versions of the charts in the chart repository")
@@ -129,35 +127,36 @@ func validateRootArgs(_ *cobra.Command, args []string) error {
 		if len(args) == 1 && args[0] == "help" {
 			return nil
 		}
-		logger.Printf("error: requires at least two args to execute")
 		return errors.New("error: requires at least two args to execute")
 	}
+
 	url, err := url.Parse(args[0])
 	if err != nil {
-		logger.Printf("error: not a valid URL for index file: %s", err)
 		return fmt.Errorf("error: %q is not a valid URL for index file: %w", args[0], err)
 	}
 
 	if !strings.Contains(url.Scheme, "http") {
-		logger.Printf("error: not a valid URL protocol: `%s`", url.Scheme)
 		return errors.New("error: not a valid URL protocol")
 	}
+
 	if !path.IsAbs(args[1]) {
-		logger.Printf("error: please provide a full path for destination folder: `%s`", args[1])
 		return errors.New("error: please provide a full path for destination folder")
 	}
+
 	return nil
 }
 
 func runRoot(_ *cobra.Command, args []string) error {
+	logger := log.New(os.Stderr, prefix, flags)
+
 	repoURL, err := url.Parse(args[0])
 	if err != nil {
 		logger.Printf("error: not a valid URL for index file: %s", err)
 		return fmt.Errorf("error: %q is not a valid URL for index file: %w", args[0], err)
 	}
+
 	folder = args[1]
-	err = os.MkdirAll(folder, 0o744)
-	if err != nil {
+	if err := os.MkdirAll(folder, 0o744); err != nil {
 		logger.Printf("error: cannot create destination folder: %s", err)
 		return fmt.Errorf("cannot create destination folder %q: %w", folder, err)
 	}
@@ -190,9 +189,11 @@ func runRoot(_ *cobra.Command, args []string) error {
 		CertFile: certFile,
 		KeyFile:  keyFile,
 	}
+
 	getService := service.NewGetService(config, AllVersions, Verbose, IgnoreErrors, logger, rootURL.String(), chartName, chartVersion)
 	if err := getService.Get(); err != nil {
 		return fmt.Errorf("cannot download index and charts to the specified directory: %w", err)
 	}
+
 	return nil
 }

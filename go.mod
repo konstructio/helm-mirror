@@ -1,9 +1,9 @@
-module github.com/patrickdappollonio/helm-mirror
+module github.com/konstructio/helm-mirror
 
 go 1.22.0
 
 require (
-	github.com/containers/image v3.0.2+incompatible
+	github.com/containers/image/v5 v5.31.1
 	github.com/distribution/reference v0.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.8.1
@@ -16,6 +16,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
+	github.com/containers/storage v1.54.0 // indirect
 	github.com/cyphar/filepath-securejoin v0.3.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect

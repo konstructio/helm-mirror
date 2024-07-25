@@ -52,6 +52,12 @@ func NewGetService(config repo.Entry, allVersions bool, verbose bool, ignoreErro
 	}
 }
 
+func (g *GetService) logVerbose(format string, args ...any) {
+	if g.verbose {
+		g.logger.Printf(format, args...)
+	}
+}
+
 // Get methods downloads the index file and the Helm charts to the working directory.
 func (g *GetService) Get() error {
 	chartRepo, err := repo.NewChartRepository(&g.config, getter.All(environment.EnvSettings{}))
@@ -59,43 +65,57 @@ func (g *GetService) Get() error {
 		return fmt.Errorf("cannot construct chart repository: %w", err)
 	}
 
+	g.logVerbose("Downloading index file from %s", g.config.URL)
 	downloadedIndexPath := path.Join(g.config.Name, downloadedFileName)
-	err = chartRepo.DownloadIndexFile(downloadedIndexPath)
-	if err != nil {
+	if err := chartRepo.DownloadIndexFile(downloadedIndexPath); err != nil {
 		return fmt.Errorf("cannot download index file: %w", err)
 	}
 
-	err = chartRepo.Load()
-	if err != nil {
+	g.logVerbose("Loading local directory %q as repository", g.config.Name)
+	if err := chartRepo.Load(); err != nil {
 		return fmt.Errorf("cannot load index file: %w", err)
 	}
 
+	g.logVerbose("Creating a new local index and adding charts to it")
 	index := search.NewIndex()
 	index.AddRepo(chartRepo.Config.Name, chartRepo.IndexFile, (g.allVersions || g.chartVersion != ""))
+
 	rexp := fmt.Sprintf("^.*%s.*", g.chartName)
+	g.logVerbose("Searching for regexp %q in index file", rexp)
+
 	results, err := index.Search(rexp, 1, true)
 	if err != nil {
 		return fmt.Errorf("cannot search index file: %w", err)
 	}
 
+	g.logVerbose("Found %d results from searching %q", len(results), rexp)
+
 	for _, result := range results {
+		g.logVerbose("Processing chart %q (version %s)", result.Chart.Name, result.Chart.Version)
+
 		if g.chartName != "" && result.Chart.Name != g.chartName {
 			continue
 		}
+
 		if g.chartVersion != "" && result.Chart.Version != g.chartVersion {
 			continue
 		}
-		for _, u := range result.Chart.URLs {
-			chartURL, err := url.Parse(u)
+
+		for _, val := range result.Chart.URLs {
+			g.logVerbose("Found chart URL %q for chart %q (version %s)", val, result.Chart.Name, result.Chart.Version)
+
+			chartURL, err := url.Parse(val)
 			if err != nil {
-				return fmt.Errorf("invalid chart URL %q: %w", u, err)
+				return fmt.Errorf("invalid chart URL %q: %w", val, err)
 			}
 
 			if chartURL.Scheme == "" {
-				u = strings.TrimRight(g.config.URL, dirSeparator) + dirSeparator + u
+				val = strings.TrimRight(g.config.URL, dirSeparator) + dirSeparator + val
 			}
 
-			buf, err := chartRepo.Client.Get(u)
+			g.logVerbose("Downloading chart %q (version %s) from %q", result.Chart.Name, result.Chart.Version, val)
+
+			buf, err := chartRepo.Client.Get(val)
 			if err != nil {
 				if g.ignoreErrors {
 					g.logger.Printf("WARNING: processing chart %s(%s) - %s", result.Name, result.Chart.Version, err)
@@ -103,44 +123,50 @@ func (g *GetService) Get() error {
 				}
 				return fmt.Errorf("cannot download chart %s(%s): %w", result.Name, result.Chart.Version, err)
 			}
+
 			chartFileName := fmt.Sprintf("%s-%s.tgz", result.Chart.Name, result.Chart.Version)
 			chartPath := path.Join(g.config.Name, chartFileName)
 
-			if err := writeFile(chartPath, buf.Bytes(), g.logger, g.ignoreErrors); err != nil {
+			g.logVerbose("Writing chart %q (version %s) to %q", result.Chart.Name, result.Chart.Version, chartPath)
+			if err := g.writeFile(chartPath, buf.Bytes()); err != nil {
 				return fmt.Errorf("cannot write chart %s(%s): %w", result.Name, result.Chart.Version, err)
 			}
 		}
 	}
 
-	err = prepareIndexFile(g.config.Name, g.config.URL, g.newRootURL, g.logger, g.ignoreErrors)
-	if err != nil {
-		return err
+	g.logVerbose("Preparing index file %q: rewriting URL: %q->%q", g.config.Name, g.config.URL, g.newRootURL)
+	if err := g.prepareIndexFile(g.config.Name, g.config.URL, g.newRootURL); err != nil {
+		return fmt.Errorf("cannot prepare index file: %w", err)
 	}
+
+	g.logVerbose("Operation completed successfully")
 	return nil
 }
 
-func writeFile(name string, content []byte, log *log.Logger, ignoreErrors bool) error {
-	err := os.WriteFile(name, content, 0o600)
-	if err != nil {
-		if ignoreErrors {
-			log.Printf("cannot write file %q: %s", name, err)
+func (g *GetService) writeFile(name string, content []byte) error {
+	if err := os.WriteFile(name, content, 0o600); err != nil {
+		if g.ignoreErrors {
+			g.logger.Printf("Skipping due to ignore errors: Cannot write file %q (%d bytes): %s", name, len(content), err)
 		} else {
 			return fmt.Errorf("cannot write file %q: %w", name, err)
 		}
 	}
+
 	return nil
 }
 
-func prepareIndexFile(folder string, repoURL string, newRootURL string, log *log.Logger, ignoreErrors bool) error {
+func (g *GetService) prepareIndexFile(folder string, repoURL string, newRootURL string) error {
 	downloadedPath := path.Join(folder, downloadedFileName)
 	indexPath := path.Join(folder, indexFileName)
+
 	if newRootURL != "" {
 		indexContent, err := os.ReadFile(downloadedPath)
 		if err != nil {
 			return fmt.Errorf("cannot read index file: %w", err)
 		}
+
 		content := bytes.ReplaceAll(indexContent, []byte(repoURL), []byte(newRootURL))
-		if err := writeFile(downloadedPath, content, log, ignoreErrors); err != nil {
+		if err := g.writeFile(downloadedPath, content); err != nil {
 			//nolint:nilerr // ignore error
 			return nil
 		}

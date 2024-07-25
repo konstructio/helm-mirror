@@ -3,7 +3,7 @@
 # Shamelessly copied from https://github.com/technosophos/helm-template
 
 PROJECT_NAME="helm-mirror"
-PROJECT_GH="patrickdappollonio/$PROJECT_NAME"
+PROJECT_GH="konstructio/$PROJECT_NAME"
 export GREP_COLOR="never"
 
 # Convert HELM_BIN and HELM_PLUGIN_DIR to unix if cygpath is
@@ -135,7 +135,7 @@ exit_trap() {
   rmTempDir
   if [ "$result" != "0" ]; then
     echo "Failed to install $PROJECT_NAME"
-    printf '\tFor support, go to https://github.com/patrickdappollonio/helm-mirror.\n'
+    printf '\tFor support, go to https://github.com/konstructio/helm-mirror.\n'
   fi
   exit $result
 }

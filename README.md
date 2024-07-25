@@ -1,7 +1,7 @@
 # helm-mirror Plugin
 
-[![Release](https://img.shields.io/github/release/patrickdappollonio/helm-mirror.svg)](https://github.com/patrickdappollonio/helm-mirror/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/patrickdappollonio/helm-mirror/total?color=blue&logo=github)](https://github.com/patrickdappollonio/helm-mirror/releases)
+[![Release](https://img.shields.io/github/release/konstructio/helm-mirror.svg)](https://github.com/konstructio/helm-mirror/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/konstructio/helm-mirror/total?color=blue&logo=github)](https://github.com/konstructio/helm-mirror/releases)
 
 
 A fork of the [`helm-mirror` plugin from openSUSE](https://github.com/openSUSE/helm-mirror). This plugin allows you to mirror Helm Charts from a repository into a local folder.
@@ -11,16 +11,16 @@ A fork of the [`helm-mirror` plugin from openSUSE](https://github.com/openSUSE/h
 Using Helm plugin manager (> 2.3.x)
 
 ```bash
-helm plugin install https://github.com/patrickdappollonio/helm-mirror --version main
+helm plugin install https://github.com/konstructio/helm-mirror --version main
 ```
 
 Using a Go environment:
 
 ```bash
-go install github.com/patrickdappollonio/helm-mirror@latest
+go install github.com/konstructio/helm-mirror@latest
 ```
 
-Or download the binary from the [releases page](https://github.com/patrickdappollonio/helm-mirror/releases), unpack it, and use the `bin/mirror` binary directly.
+Or download the binary from the [releases page](https://github.com/konstructio/helm-mirror/releases), unpack it, and use the `bin/mirror` binary directly.
 
 ## Usage
 

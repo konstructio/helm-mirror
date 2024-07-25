@@ -15,7 +15,7 @@
 
 package main
 
-import "github.com/patrickdappollonio/helm-mirror/cmd"
+import "github.com/konstructio/helm-mirror/cmd"
 
 func main() {
 	cmd.Execute()
