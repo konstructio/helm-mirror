@@ -98,3 +98,10 @@ changelog:
     - title: "Dependency updates"
       regexp: "^Bump .* from .* to .*$" # dependabot
       order: 999
+brews:
+  - name: helm-mirror
+    homepage: https://github.com/konstructio/helm-mirror
+    repository:
+      owner: konstructio
+      name: homebrew-taps
+      token: "{{ .Env.GH_TOKEN }}"
