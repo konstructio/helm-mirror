@@ -1,4 +1,4 @@
-name: Testing code - Commits not tied to PRs
+name: Testing code - Commits
 on:
   push:
     branches-ignore:
