@@ -6,10 +6,10 @@ github.com/Masterminds/semver v1.5.0 h1:H65muMkzWKEuNDnfl9d70GUjFniHKHRbFPGBuZ3Q
 github.com/Masterminds/semver v1.5.0/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
 github.com/Masterminds/sprig v2.22.0+incompatible h1:z4yfnGrZ7netVz+0EDJ0Wi+5VZCSYp4Z0m2dk6cEM60=
 github.com/Masterminds/sprig v2.22.0+incompatible/go.mod h1:y6hNFY5UBTIWBxnzTeuNhlNS5hqE0NB0E6fgfo2Br3o=
-github.com/containers/image/v5 v5.31.1 h1:3x9soI6Biml/GiDLpkSmKrkRSwVGctxu/vONpoUdklA=
-github.com/containers/image/v5 v5.31.1/go.mod h1:5QfOqSackPkSbF7Qxc1DnVNnPJKQ+KWLkfEfDpK590Q=
-github.com/containers/storage v1.54.0 h1:xwYAlf6n9OnIlURQLLg3FYHbO74fQ/2W2N6EtQEUM4I=
-github.com/containers/storage v1.54.0/go.mod h1:PlMOoinRrBSnhYODLxt4EXl0nmJt+X0kjG0Xdt9fMTw=
+github.com/containers/image/v5 v5.32.0 h1:yjbweazPfr8xOzQ2hkkYm1A2V0jN96/kES6Gwyxj7hQ=
+github.com/containers/image/v5 v5.32.0/go.mod h1:x5e0RDfGaY6bnQ13gJ2LqbfHvzssfB/y5a8HduGFxJc=
+github.com/containers/storage v1.55.0 h1:wTWZ3YpcQf1F+dSP4KxG9iqDfpQY1otaUXjPpffuhgg=
+github.com/containers/storage v1.55.0/go.mod h1:28cB81IDk+y7ok60Of6u52RbCeBRucbFOeLunhER1RQ=
 github.com/cpuguy83/go-md2man/v2 v2.0.4/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/cyphar/filepath-securejoin v0.3.1 h1:1V7cHiaW+C+39wEfpH6XlLBQo3j/PciWFrgfCLS8XrE=
 github.com/cyphar/filepath-securejoin v0.3.1/go.mod h1:F7i41x/9cBF7lzCrVsYs9fuzwRZm4NQsGTBdpp6mETc=
